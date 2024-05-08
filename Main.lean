@@ -97,8 +97,50 @@ example : (∀ x, p x) ∨ (∀ x, q x) → ∀ x, p x ∨ q x := by
   case left => intro apx; apply Or.inl (apx x)
   case right => intro aqx; apply Or.inr (aqx x)
 
-def main : IO Unit :=
-  IO.println "Hello world"
+def BoundedInt (low : Int) (high : Int) : Type :=
+  { n : Int // low <= n ∧ n <= high }
+
+instance : LT (BoundedInt low high) where
+  lt a b := a.val < b.val
+
+-- idk how this works
+instance (a b : BoundedInt l h) : Decidable (a < b) :=
+  inferInstanceAs (Decidable (a.val < b.val))
+
+/- instance : GT (BoundedInt low high) where -/
+/-   gt a b := a.val > b.val -/
+
+def guessingGame 
+  (hp : Nat) (low : Int) (high : Int) (x : BoundedInt low high) 
+  : IO Unit := do
+    let stdin ← IO.getStdin
+    let stdout ← IO.getStdout
+    if hp > 0 then
+      stdout.putStrLn s!"Guess a number from {low} to {high}"
+      let inp ← stdin.getLine
+      match inp |> String.trim |> String.toNat? with
+      | some n => 
+        if n == x.val then
+          stdout.putStrLn "good job"
+        else if b : low <= n ∧ n <= high then 
+          let boundedN : (BoundedInt low high) := ⟨ n, b ⟩
+          let msg := if boundedN < x then "too low" else "too high"
+          stdout.putStrLn msg
+          guessingGame (hp-1) low high x
+        else 
+          stdout.putStrLn 
+            s!"Please input a number from {low} to {high}"
+      | none => 
+        stdout.putStrLn "Please input a number"
+        guessingGame (hp-1) low high x
+    else
+      stdout.putStrLn "ran out of hp"
+    termination_by hp
+
+def main : IO Unit := do
+  let n : BoundedInt 0 100 := ⟨ 50, by simp ⟩
+  guessingGame 100 0 100 n
+  /- IO.println "Hello world" -/
   /- let start := 1 -/
   /- let end' := 100 -/
   /- let sum1 := sumRangeClosed start end' -/
