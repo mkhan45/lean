@@ -78,12 +78,24 @@ example : (∀ x, p x → q x) → ((∀ x, p x) → (∀ x, q x)) :=
     h1x px
 
 -- better with tactics?
+-- i dont understand what to info pane is showing me
+-- i think tactics are worse here
 example : (∀ x, p x → q x) → ((∀ x, p x) → (∀ x, q x)) := by
   intros h1 h2 x
-  apply h1
+  apply h1 x
   apply h2
 
-example : (∀ x, p x) ∨ (∀ x, q x) → ∀ x, p x ∨ q x := sorry
+example : (∀ x, p x) ∨ (∀ x, q x) → ∀ x, p x ∨ q x :=
+  λ disjunct ↦ Or.elim disjunct
+    (λ (apx : ∀ x, p x) x ↦ Or.inl (apx x))
+    (λ (aqx : ∀ x, q x) x ↦ Or.inr (aqx x))
+
+-- still worse with tactics imo
+example : (∀ x, p x) ∨ (∀ x, q x) → ∀ x, p x ∨ q x := by
+  intro h x
+  apply Or.elim h
+  case left => intro apx; apply Or.inl (apx x)
+  case right => intro aqx; apply Or.inr (aqx x)
 
 def main : IO Unit :=
   IO.println "Hello world"
