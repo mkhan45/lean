@@ -60,6 +60,30 @@ example : p ∨ False ↔ p := sorry
 example : p ∧ False ↔ False := sorry
 example : (p → q) → (¬q → ¬p) := sorry
 
+variable (α : Type) (p q : α → Prop)
+
+example : (∀ x, p x ∧ q x) ↔ (∀ x, p x) ∧ (∀ x, q x) :=
+  Iff.intro
+    (show (∀ x, p x ∧ q x) → (∀ x, p x) ∧ (∀ x, q x) 
+     from λ h ↦ And.intro 
+      (show ∀ x, p x from λ a ↦ (h a).left)
+      (show ∀ x, q x from λ a ↦ (h a).right))
+    (show ((∀ x, p x) ∧ (∀ x, q x)) → (∀ x, p x ∧ q x)
+     from λ ⟨ p, q ⟩ ↦ λ a ↦ And.intro (p a) (q a))
+
+example : (∀ x, p x → q x) → ((∀ x, p x) → (∀ x, q x)) :=
+  λ h1 h2 ↦ λ x ↦
+    have h1x : p x → q x := h1 x
+    have px : p x := h2 x
+    h1x px
+
+-- better with tactics?
+example : (∀ x, p x → q x) → ((∀ x, p x) → (∀ x, q x)) := by
+  intros h1 h2 x
+  apply h1
+  apply h2
+
+example : (∀ x, p x) ∨ (∀ x, q x) → ∀ x, p x ∨ q x := sorry
 
 def main : IO Unit :=
   IO.println "Hello world"
