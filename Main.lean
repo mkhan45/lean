@@ -1,24 +1,30 @@
 import «Idk»
 
 def sumRangeClosed (start : Nat) (end' : Nat) : Nat :=
-  ((start + end') / 2) * (end' - start + 1)
+  (end' * (end' + 1) - start * (start - 1)) / 2
 
 def sumRange (start : Nat) (end' : Nat) : Nat :=
     if start >= end' then start
-    else start + sumRange (start + 1) end'
+    else start + (sumRange (start + 1) end')
 termination_by (end' - start)
+
+#eval sumRangeClosed 1 100
+#eval sumRange 1 100
+#eval sumRangeClosed 51 100
+#eval sumRange 51 100
 
 theorem sumRangeEq (start end' : Nat) 
 : sumRange start end' = sumRangeClosed start end' :=
   if h : end' - start = 0 then by
-    rw [sumRangeClosed]; simp [h]; rw [sumRange];
+    rw [sumRangeClosed, sumRange];
     have h' : start = end' := sorry
-    simp [h']; sorry
+    simp [h']; 
+    simp [Nat.left_distrib, Nat.mul_sub_left_distrib];
+    sorry
   else by
     rw [sumRange]; rw [sumRangeEq];
-    have h' : ¬ start >= end' := sorry
-    simp [h']; rw [sumRangeClosed, sumRangeClosed];
-    sorry
+    have h' : ¬(start >= end') := sorry
+    simp [h', sumRangeClosed, Nat.mul_comm]; sorry
   termination_by (end' - start)
 
 
