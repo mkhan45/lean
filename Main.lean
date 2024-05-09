@@ -1,16 +1,26 @@
 import «Idk»
 
-/- def sumRangeClosed (start : Nat) (end' : Nat) : Nat := -/
-/-   ((start + end') / 2) * (end' - start + 1) -/
+def sumRangeClosed (start : Nat) (end' : Nat) : Nat :=
+  ((start + end') / 2) * (end' - start + 1)
 
-/- def sumRange (start : Nat) (end' : Nat) : Nat := -/
-/-     if start >= end' then 0 -/
-/-     else sumRange (start + 1) end' -/
-/- termination_by (end' - start) -/
+def sumRange (start : Nat) (end' : Nat) : Nat :=
+    if start >= end' then start
+    else start + sumRange (start + 1) end'
+termination_by (end' - start)
 
-/- theorem sumRangeEq (start : Nat) (end' : Nat) -/
-/-   : sumRange start end' = sumRangeClosed start end' := -/
-/-   sorry -/
+theorem sumRangeEq (start end' : Nat) 
+: sumRange start end' = sumRangeClosed start end' :=
+  if h : end' - start = 0 then by
+    rw [sumRangeClosed]; simp [h]; rw [sumRange];
+    have h' : start = end' := sorry
+    simp [h']; sorry
+  else by
+    rw [sumRange]; rw [sumRangeEq];
+    have h' : ¬ start >= end' := sorry
+    simp [h']; rw [sumRangeClosed, sumRangeClosed];
+    sorry
+  termination_by (end' - start)
+
 
 variable (p q r : Prop)
 
